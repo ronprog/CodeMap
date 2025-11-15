@@ -1,0 +1,87 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% block content%}
+<style>
+
+    .error404{
+        margin: 0 auto;
+        width: 60%;
+        display: flex;
+        flex-direction: column;
+        
+
+    }
+    .error404_code{
+
+        font-size: 100px;
+        margin: 0 auto;
+
+
+    }
+    .error404_description{
+        display: flex;
+        flex-direction: column;
+        
+        margin: 0 auto;
+    }
+    .error404_description_another{
+        margin: 0 auto ;
+        font-size: 35px;
+        
+    }
+    .error404_description_message{
+        margin: 0 auto;
+        font-size: 50px;
+    }
+   
+   
+    .error404_anotherway{
+        display: flex;
+        flex-direction: row;
+        margin: 0 auto;
+
+
+    }
+    .error404_anotherway a{
+
+        background-color: lightblue;
+        width: 250px;
+
+        height: 50px;
+
+        margin: 10px;
+
+        border-radius: 10px;
+        text-align: center;
+        align-content: center;
+
+        text-decoration: none;
+    }
+    .error404_anotherway a:visited{
+    color: black;
+}
+</style>
+<div class = "error404">
+
+<p class = "error404_code">404</p>
+<div class =  "error404_description">
+<span class  = "error404_description_message"> Страница не найдена!
+    
+</span>
+<span class = "error404_description_another">Но есть много других...</span>
+
+</div>
+
+<div class = "error404_anotherway">
+    <a href = "{% url 'index'%}">Главная</a>
+    <a href = "{% url 'hot'%}">Популярные вопросы</a>
+</div>
+
+
+
+
+
+</div>
+
+{% endblock content%}

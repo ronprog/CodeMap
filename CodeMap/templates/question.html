@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<section class="content">
+    <section class="question">
+        <div class="question__logo">
+            <img class="question__avatar" src="{% static 'CodeMap/img/profile.png' %}" alt="pic">
+            <div class="question__likes">
+                <form method="POST" action="{% url 'like_question' question.id %}" class="like-form">
+                    {% csrf_token %}
+                    <button type="submit" class="like-btn {% if user_reaction_question > 0 %}active{% endif %}" 
+                            title="{% if user_reaction_question > 0 %}Remove like{% else %}Like this question{% endif %}">
+                        ♥
+                    </button>
+                </form>
+                <div class="rating-value">{{ question.rating }}</div>
+            </div>
+        </div>
+        <div class="question__description">
+            <h3>{{ question.title }}</h3>
+            <p>{{ question.content }}</p>
+            <div class="question__description_tags">
+                <span>Tags:</span>
+                {% for tag in question.tags.all %}
+                <a href="{% url 'tag' tag.name %}">{{ tag.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    
+    <section class="answers">
+        {% for answer_data in answers %}
+        <div class="answer">
+            <div class="answer__logo">
+                <img class="answer__avatar" src="{% static 'CodeMap/img/profile.png' %}" alt="pic">
+                <div class="answer__likes">
+                    <form method="POST" action="{% url 'like_answer' answer_data.obj.id %}" class="like-form">
+                        {% csrf_token %}
+                        <button type="submit" class="like-btn {% if answer_data.user_reaction > 0 %}active{% endif %}" 
+                                title="{% if answer_data.user_reaction > 0 %}Remove like{% else %}Like this answer{% endif %}">
+                            ♥
+                        </button>
+                    </form>
+                    <div class="rating-value">{{ answer_data.obj.rating }}</div>
+                </div>
+            </div>
+            <div class="answer__description">
+                <p>{{ answer_data.obj.content }}</p>
+                <div class="answer__checker">
+                    <form method="POST" action="{% url 'question' question.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="answer_id" value="{{ answer_data.obj.id }}">
+                        <input class="answer__checker__checkbox" type="checkbox" name="mark_correct" 
+                               {% if answer_data.obj.is_correct %}checked{% endif %} 
+                               onchange="this.form.submit()">
+                        <h3>Correct!</h3>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </section>
+    
+    <section class="my__answer">
+        <form method="POST" action="{% url 'question' question.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_answer">
+            <textarea class="my__answer__pole" name="content" placeholder="Enter your answer..." required></textarea>
+            <button type="submit" class="my__answer__submit">Answer</button>
+        </form>
+    </section>
+</section>
+
+<aside class="aside">
+    {% include 'popular_tags.html' %}
+    <div class="aside__members">
+        <span class="aside__members__subtitle">Best Members</span>
+        <div class="aside__members__list">
+            <a href="#">Mr Freeman</a>
+            <a href="#">Dr. House</a>
+            <a href="#">Queen Victoria</a>
+            <a href="#">Bender Rodriguez</a>
+        </div>
+    </div>
+</aside>
+{% endblock %}

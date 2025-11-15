@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<section class="new_question">
+    <H2 class="new_question__head">New Question</H2>
+    
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="new_question__title">
+            <Span>Title</Span>
+            <input type="text" name="title" required>
+        </div>
+        
+        <div class="new_question__text">
+            <span>Text</span>
+            <textarea name="content" required></textarea>
+        </div>
+        
+        <div class="new_question__tags">
+            <span>Tags</span>
+            <input type="text" name="tags">
+        </div>
+        
+        <div class="new_question__submit">
+            <button type="submit" class="new_question__submit" onclick="this.disabled=true; this.form.submit();">ASK!</button>
+        </div>
+    </form>
+</section>
+
+<aside class="aside">
+    {% include 'popular_tags.html' %}
+    <div class="aside__members">
+        <span class="aside__members__subtitle">Best Members</span>
+        <div class="aside__members__list">
+            <a href="#">Mr Freeman</a>
+            <a href="#">Dr. House</a>
+            <a href="#">Queen Victoria</a>
+            <a href="#">Dr. House</a>
+        </div>
+    </div>
+</aside>
+{% endblock %}

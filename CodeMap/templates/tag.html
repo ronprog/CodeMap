@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content%}
+<section class="questions">
+    <div class="questions__title">
+        <h2>Questions for Tag: {{tag}}</h2>
+        <a href="{% url 'hot' %}">Hot Questions</a>
+    </div>
+    <div class="questions__content">
+        {% for question in questions_page %}
+        <div class="question__root">
+            <div class="question__aside">
+                <img src="{% static 'CodeMap/img/profile.png' %}" alt="pic" class="question__image">
+                <!-- Отображение рейтинга -->
+                <div class="rating-display">
+                    <div class="rating-value">{{ question.rating }}</div>
+                    <div class="rating-label">votes</div>
+                </div>
+            </div>
+            <div class="question__content">
+                <h3 class="question__header">
+                    <a href="{% url 'question' question.id %}">{{ question.title }}</a>
+                </h3>
+                <p class="question__description">{{ question.content|truncatewords:30 }}</p>
+                <div class="question__footer">
+                    <a href="{% url 'question' question.id %}" class="question__answers">
+                        answers ({{ question.answers.count }})
+                    </a>
+                    <div class="question__tags">
+                        <span class="question__subtitle">Tags</span>
+                        <div class="question__tags__list">
+                            {% for tag in question.tags.all %}
+                            <a href="{% url 'tag' tag.name %}">{{ tag.name }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+<div class="questions__pagination">
+
+        {% if questions_page.has_previous and questions_page.previous_page_number != 0 and questions_page.number == questions_page.paginator.num_pages%}
+        <a href="?page={{ 1 }}" class="questions__pagination__item">
+            {{ 1 }}
+        </a>
+        <a style="a {text-decoration: none; } " class="questions__pagination__item">...
+            
+        </a>
+        
+        
+        {% endif %}
+
+
+        {% if questions_page.has_previous %}
+        <a href="?page={{ questions_page.previous_page_number }}" class="questions__pagination__item">
+            {{ questions_page.previous_page_number }}
+        </a>
+        {% endif %}
+        
+        <a class="questions__pagination__item" style="background-color: lightgray;">{{ questions_page.number }}</a>
+        
+        {% if questions_page.has_next %}
+        <a href="?page={{ questions_page.next_page_number }}" class="questions__pagination__item">
+            {{ questions_page.next_page_number }}
+        </a>
+        {% endif %}
+        {% if questions_page.has_next and questions_page.next_page_number != questions_page.paginator.num_pages %}
+        <a style="a {text-decoration: none; } " class="questions__pagination__item">...
+            
+        </a>
+        
+        <a href="?page={{ questions_page.paginator.num_pages }}" class="questions__pagination__item">
+            {{ questions_page.paginator.num_pages }}
+        </a>
+        {% endif %}
+        
+
+    </div>
+</section>
+<aside class="aside">
+    {% include 'popular_tags.html' %}
+    <div class="aside__members">
+        <span class="aside__members__subtitle">Best Members</span>
+        <div class="aside__members__list">
+            <a href="#">Mr Freeman</a>
+            <a href="#">Dr. House</a>
+            <a href="#">Queen Victoria</a>
+            <a href="#">Bender Rodriguez</a>
+        </div>
+    </div>
+</aside>
+{% endblock content%}

@@ -1,0 +1,93 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% block content%}
+<style>
+
+    .error500{
+        margin: 0 auto;
+        width: 70%;
+        display: flex;
+        flex-direction: column;
+        
+
+    }
+    .error500_code{
+
+        font-size: 100px;
+        margin: 0 auto;
+
+
+    }
+    .error500_description{
+        display: flex;
+        flex-direction: column;
+        
+        margin: 0 auto;
+    }
+    .error500_description_another{
+        margin: 0 auto ;
+        font-size: 35px;
+        
+    }
+    .error500_description_message{
+        margin: 0 auto;
+        font-size: 50px;
+    }
+   
+   
+    .error500_anotherway{
+        display: flex;
+        flex-direction: row;
+        margin: 0 auto;
+
+
+    }
+    .error500_anotherway a{
+
+        background-color: lightblue;
+        width: 250px;
+
+        height: 50px;
+
+        margin: 10px;
+
+        border-radius: 10px;
+        text-align: center;
+        align-content: center;
+
+        text-decoration: none;
+    }
+    .error500_anotherway a:active, 
+.error500_anotherway a:hover,  
+.error500_anotherway a {
+  text-decoration: none;
+  
+}
+.error500_anotherway a:visited{
+    color: black;
+}
+</style>
+<div class = "error500">
+
+<p class = "error500_code">500</p>
+<div class =  "error500_description">
+<span class  = "error500_description_message"> Произошла поломка....
+    
+</span>
+<span class = "error500_description_another">Попробуйте вернуться на главную страницу! </span>
+    
+</div>
+
+
+<div class = "error500_anotherway">
+    <a href = "{% url 'index'%}" type="text">Главная</a>
+    
+</div>
+
+
+
+
+</div>
+
+{% endblock content%}

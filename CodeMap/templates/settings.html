@@ -1,0 +1,50 @@
+
+
+
+
+  {% extends 'base.html' %}
+{% load static %}
+        {%block content%}
+    <section class = "signup">
+        <h1 class = "signup__title">Settings: Dr. Pepper</h2>
+        
+        <div class  = "signup__form">
+            <div  class = "signup__form__login">
+
+                <span>Login</span>
+                <input type="text">
+
+            </div>
+            <div class="signup__form__email">
+                <span>Email</span>
+                <input type="text">
+            </div>
+            <div class="signup__form__nickname">
+                <span>NickName</span>
+                <input type="text">
+            </div>
+            
+            
+            <div class="signup__form__avatar">
+                <span>Upload avatar</span>
+                <input type="file">
+                <button>choose</button>
+            </div>
+            <div class="signup__form__submit">
+                <button>Save</button>
+            </div>
+        </div>
+    </section>
+        <aside class="aside">
+                {%include 'popular_tags.html'%}
+                <div class="aside__members">
+                    <span class = "aside__members__subtitle">Best Members</span>
+                    <div class = "aside__members__list">
+                        <a href="#">Mr Freeman</a>
+                        <a href="#">Dr. House</a>
+                         <a href="#">Queen Victoria</a>
+                        <a href="#">Dr. House</a>
+                    </div>
+                </div>
+        </aside>
+  {% endblock content%}

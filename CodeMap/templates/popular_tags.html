@@ -1,0 +1,8 @@
+<div class="aside__tags">
+        <span class="aside__tags__subtitle">Popular Tags</span>
+        <div class="aside__tags__list">
+            {% for tag in popular_tags %}
+                <a href="{% url 'tag' tag.name %}">{{ tag.name }}</a>
+            {% endfor %}
+        </div>
+    </div>

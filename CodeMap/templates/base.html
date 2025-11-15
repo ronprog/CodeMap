@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeMap - карта ваших ответов</title>
+<link rel="stylesheet" href="{% static 'CodeMap/css/style.css' %}">
+</head>
+<body class = "root">
+    <header class="header">
+        <div class = "header__wrapper">
+            <div class = "header__logo" ><a  href="{% url 'index'%}">CodeMap</a></div>
+        
+        <div class = "header__search">
+            <input type="text" class="header__search" placeholder="Search..">
+          <button class = "header__ask">ASK!</button>
+      
+        </div>
+        <div class="header__profile">
+
+            <img src="{% static 'CodeMap/img/profile.png' %}" alt="pic" class = "header__profile__image">
+            <div class = "header__profile__user">
+                     <span class = "header__profile__username">Dr. Pepper</span>
+                     <div class = "header__profile_actions">
+                        <a href="{%  url 'settings' %}">settings</a>
+                        <a href="#">logout</a>
+                     </div>
+            </div>
+       
+        </div>
+        </div>
+    </header>
+    
+           
+      
+    <main class="main">
+        {%block content%}
+        
+        {%endblock content%}
+    </main>
+</body>
+</html>

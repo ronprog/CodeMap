@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+        {%block content%}
+    <section class = "login">
+
+
+        <div class="logo">
+            <h2 class="logo__name">Log In</h2>
+        </div>
+        <div class = "logo__error">
+            <p>Sorry, wrong password!</p>
+        </div>
+        <div class = "login__auth">
+            <div class="login__login">
+                <span>Login</span>
+                <input type="text">
+            </div>
+            <div class="login__password">
+                <span>Password</span>
+                <input type="text">
+            </div>
+            <div class = "login__submit">
+                <button>Log In!</button>
+            </div>
+
+
+        </div>
+        <div class =  "lohin__registration">
+            <a href="#">create new account</a>
+        </div>
+    </section>
+        <aside class="aside">
+                {%include 'popular_tags.html'%}
+                <div class="aside__members">
+                    <span class = "aside__members__subtitle">Best Members</span>
+                    <div class = "aside__members__list">
+                        <a href="#">Mr Freeman</a>
+                        <a href="#">Dr. House</a>
+                         <a href="#">Queen Victoria</a>
+                        <a href="#">Dr. House</a>
+                    </div>
+                </div>
+        </aside>
+
+        {% endblock content%}
