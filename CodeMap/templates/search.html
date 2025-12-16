@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<section class="questions">
+    <div class="questions__title">
+        <h2>
+            {% if search_query %}
+                Search Results for "{{ search_query }}"
+            {% else %}
+                Search
+            {% endif %}
+        </h2>
+        <div class="search-info">
+            {% if search_query %}
+                <p>Found {{ results_count }} result{{ results_count|pluralize }}</p>
+            {% else %}
+                <p>Enter search query to find questions</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if search_query and results_count > 0 %}
+    <div class="questions__content">
+        {% for question in results_page %}
+        <div class="question__root">
+            <div class="question__aside">
+                <img src="{% static 'CodeMap/img/profile.png' %}" alt="pic" class="question__image">
+                
+                <div class="rating-display">
+                    <div class="rating-value">{{ question.rating }}</div>
+                    <div class="rating-label">likes</div>
+                </div>
+            </div>
+            
+            <div class="question__content">
+                <h3 class="question__header">
+                    <a href="{% url 'question' question.id %}">{{ question.title }}</a>
+                </h3>
+                
+                <!-- Выделение найденных слов в контенте -->
+                <p class="question__description">
+                    {% if search_query in question.content|lower %}
+                        {{ question.content|truncatewords:30 }}
+                        <span class="highlight">(found in content)</span>
+                    {% else %}
+                        {{ question.content|truncatewords:30 }}
+                    {% endif %}
+                </p>
+                
+                <div class="question__footer">
+                    <a href="{% url 'question' question.id %}" class="question__answers">
+                        answers ({{ question.answers.count }})
+                    </a>
+                    <div class="question__tags">
+                        <span class="question__subtitle">Tags</span>
+                        <div class="question__tags__list">
+                            {% for tag in question.tags.all %}
+                                {% if search_query in tag.name|lower %}
+                                    <a href="{% url 'tag' tag.name %}" class="highlight-tag">
+                                        {{ tag.name }}
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'tag' tag.name %}">{{ tag.name }}</a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Пагинация (аналогично index.html) -->
+    <div class="questions__pagination">
+        {% if results_page.has_previous and results_page.previous_page_number != 0 and results_page.number == results_page.paginator.num_pages %}
+        <a href="?q={{ search_query }}&page=1" class="questions__pagination__item">1</a>
+        <a class="questions__pagination__item">...</a>
+        {% endif %}
+
+        {% if results_page.has_previous %}
+        <a href="?q={{ search_query }}&page={{ results_page.previous_page_number }}" class="questions__pagination__item">
+            {{ results_page.previous_page_number }}
+        </a>
+        {% endif %}
+        
+        <a class="questions__pagination__item" style="background-color: lightgray;">{{ results_page.number }}</a>
+        
+        {% if results_page.has_next %}
+        <a href="?q={{ search_query }}&page={{ results_page.next_page_number }}" class="questions__pagination__item">
+            {{ results_page.next_page_number }}
+        </a>
+        {% endif %}
+        
+        {% if results_page.has_next and results_page.next_page_number != results_page.paginator.num_pages %}
+        <a class="questions__pagination__item">...</a>
+        <a href="?q={{ search_query }}&page={{ results_page.paginator.num_pages }}" class="questions__pagination__item">
+            {{ results_page.paginator.num_pages }}
+        </a>
+        {% endif %}
+    </div>
+    
+    {% elif search_query and results_count == 0 %}
+    <div class="no-results" style="text-align: center; padding: 50px; color: #666;">
+        <p style="font-size: 18px;">No results found for "{{ search_query }}"</p>
+        <p>Try different keywords or check for typos</p>
+    </div>
+    
+    {% else %}
+    <div class="search-empty" style="text-align: center; padding: 50px;">
+        <p style="font-size: 18px; color: #666;">Enter your search query above</p>
+        <p>You can search by:</p>
+        <ul style="list-style: none; padding: 0; color: #666;">
+            <li>• Question title</li>
+            <li>• Question content</li>
+            <li>• Tags</li>
+            <li>• Answers content</li>
+        </ul>
+    </div>
+    {% endif %}
+</section>
+
+<aside class="aside">
+    {% include 'popular_tags.html' %}
+    <div class="aside__members">
+        <span class="aside__members__subtitle">Best Members</span>
+        <div class="aside__members__list">
+            <a href="#">Mr Freeman</a>
+            <a href="#">Dr. House</a>
+            <a href="#">Queen Victoria</a>
+            <a href="#">Bender Rodriguez</a>
+        </div>
+    </div>
+</aside>
+
+<style>
+    .highlight {
+        background-color: #fff3cd;
+        padding: 2px 5px;
+        border-radius: 3px;
+        color: #856404;
+        font-size: 12px;
+        margin-left: 5px;
+    }
+    
+    .highlight-tag {
+        background-color: #d4edda;
+        padding: 3px 8px;
+        border-radius: 3px;
+        color: #155724;
+        font-weight: bold;
+    }
+    
+    .search-info {
+        margin: 10px 0 20px 0;
+        color: #666;
+        font-size: 14px;
+    }
+    
+    .no-results {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+    
+    .search-empty {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+</style>
+{% endblock %}

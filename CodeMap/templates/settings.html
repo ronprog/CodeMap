@@ -1,50 +1,71 @@
-
-
-
-
-  {% extends 'base.html' %}
+{% extends 'base.html' %}
 {% load static %}
-        {%block content%}
-    <section class = "signup">
-        <h1 class = "signup__title">Settings: Dr. Pepper</h2>
+{% block content %}
+
+<section class="signup">
+    <h1 class="signup__title">Settings: {{ request.user.username }}</h1>
+    
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}  
         
-        <div class  = "signup__form">
-            <div  class = "signup__form__login">
-
-                <span>Login</span>
-                <input type="text">
-
+        <div class="signup__form">
+            <!-- Форма UserForm -->
+            <div class="signup__form__login">
+                <span>Username</span>
+                <!-- Имя поля должно быть "username" для UserForm -->
+                <input type="text" id="username" name="username" 
+                       value="{{ user_form.username.value|default_if_none:request.user.username }}">
+                {% if user_form.username.errors %}
+                    <div style="color: red;">{{ user_form.username.errors }}</div>
+                {% endif %}
             </div>
+            
             <div class="signup__form__email">
                 <span>Email</span>
-                <input type="text">
-            </div>
-            <div class="signup__form__nickname">
-                <span>NickName</span>
-                <input type="text">
+                <!-- Имя поля должно быть "email" для UserForm -->
+                <input type="email" id="email" name="email" 
+                       value="{{ user_form.email.value|default_if_none:request.user.email }}">
+                {% if user_form.email.errors %}
+                    <div style="color: red;">{{ user_form.email.errors }}</div>
+                {% endif %}
             </div>
             
-            
+            <!-- Форма ProfileForm -->
             <div class="signup__form__avatar">
                 <span>Upload avatar</span>
-                <input type="file">
-                <button>choose</button>
+                <!-- Имя поля должно быть "avatar" для ProfileForm -->
+                <input type="file" id="avatar" name="avatar">
+                {% if profile_form.avatar.errors %}
+                    <div style="color: red;">{{ profile_form.avatar.errors }}</div>
+                {% endif %}
             </div>
+            
             <div class="signup__form__submit">
-                <button>Save</button>
+                <button type="submit">Save</button>
             </div>
         </div>
-    </section>
-        <aside class="aside">
-                {%include 'popular_tags.html'%}
-                <div class="aside__members">
-                    <span class = "aside__members__subtitle">Best Members</span>
-                    <div class = "aside__members__list">
-                        <a href="#">Mr Freeman</a>
-                        <a href="#">Dr. House</a>
-                         <a href="#">Queen Victoria</a>
-                        <a href="#">Dr. House</a>
-                    </div>
-                </div>
-        </aside>
-  {% endblock content%}
+    </form>
+    
+    <!-- Проверка: покажем текущий аватар если есть -->
+    {% if request.user.profile.avatar %}
+    <div style="margin-top: 20px; padding: 10px; background: #f0f0f0;">
+        <h4>Текущий аватар:</h4>
+        <img src="{{ request.user.profile.avatar.url }}" alt="Avatar" width="100">
+    </div>
+    {% endif %}
+</section>
+
+<aside class="aside">
+    {% include 'popular_tags.html' %}
+    <div class="aside__members">
+        <span class="aside__members__subtitle">Best Members</span>
+        <div class="aside__members__list">
+            <a href="#">Mr Freeman</a>
+            <a href="#">Dr. House</a>
+            <a href="#">Queen Victoria</a>
+            <a href="#">Dr. House</a>
+        </div>
+    </div>
+</aside>
+
+{% endblock content %}

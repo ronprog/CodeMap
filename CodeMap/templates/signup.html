@@ -1,52 +1,139 @@
 {% extends 'base.html' %}
 {% load static %}
-        {%block content%}
-    <section class = "signup">
-        <h1 class = "signup__title">Registration</h2>
-        <p class  = "signup__error">Sorry, this email address is already registered!</p>
-        <div class  = "signup__form">
-            <div  class = "signup__form__login">
-
-                <span>Login</span>
-                <input type="text">
-
+{% block content %}
+    <section class="signup">
+        <h1 class="signup__title">Registration</h1>
+        
+        <!-- Общие ошибки формы -->
+        {% if form.non_field_errors %}
+            <div class="signup__error">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
             </div>
-            <div class="signup__form__email">
-                <span>Email</span>
-                <input type="text">
+        {% endif %}
+        
+       
+        
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="signup__form">
+          
+                <div class="signup__form__login">
+                    <span>Login</span>
+                    <input type="text" class="form-control" id="username" name="username" 
+                           value="{{ form.username.value|default_if_none:'' }}">
+                    {% if form.username.errors %}
+                        <div class="field-error">
+                            {% for error in form.username.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                
+                <div class="signup__form__email">
+                    <span>Email</span>
+                    <input type="text" class="form-control" id="email" name="email" 
+                           value="{{ form.email.value|default_if_none:'' }}">
+                    {% if form.email.errors %}
+                        <div class="field-error">
+                            {% for error in form.email.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                
+                <div class="signup__form__nickname">
+                    <span>NickName</span>
+                    <input type="text" class="form-control" id="NickName" name="NickName" 
+                           value="{{ form.NickName.value|default_if_none:'' }}">
+                    {% if form.NickName.errors %}
+                        <div class="field-error">
+                            {% for error in form.NickName.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+          
+                <div class="signup__form__password">
+                    <span>Password</span>
+                    <input type="password" class="form-control" id="password1" name="password1">
+                    {% if form.password1.errors %}
+                        <div class="field-error">
+                            {% for error in form.password1.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+             
+                <div class="signup__form__repeat__password">
+                    <span>Repeat password</span>
+                    <input type="password" class="form-control" id="password2" name="password2">
+                    {% if form.password2.errors %}
+                        <div class="field-error">
+                            {% for error in form.password2.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+    
+                <div class="signup__form__avatar">
+                    <span>Upload avatar</span>
+                    <input type="file" id="avatar" name="avatar">
+                    <button type="button">choose</button>
+                    {% if form.avatar.errors %}
+                        <div class="field-error">
+                            {% for error in form.avatar.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="signup__form__submit">
+                    <button type="submit">Register!</button>
+                </div>
             </div>
-            <div class="signup__form__nickname">
-                <span>NickName</span>
-                <input type="text">
-            </div>
-            <div class="signup__form__password">
-                <span>Password</span>
-                <input type="password">
-            </div>
-            <div class="signup__form__repeat__password">
-                <span>Repeat password</span>
-                <input type="password">
-            </div>
-            <div class="signup__form__avatar">
-                <span>Upload avatar</span>
-                <input type="file">
-                <button>choose</button>
-            </div>
-            <div class="signup__form__submit">
-                <button>Register!</button>
+        </form>
+    </section>
+    
+    <aside class="aside">
+        {% include 'popular_tags.html' %}
+        <div class="aside__members">
+            <span class="aside__members__subtitle">Best Members</span>
+            <div class="aside__members__list">
+                <a href="#">Mr Freeman</a>
+                <a href="#">Dr. House</a>
+                <a href="#">Queen Victoria</a>
+                <a href="#">Dr. House</a>
             </div>
         </div>
-    </section>
-        <aside class="aside">
-                {%include 'popular_tags.html'%}
-                <div class="aside__members">
-                    <span class = "aside__members__subtitle">Best Members</span>
-                    <div class = "aside__members__list">
-                        <a href="#">Mr Freeman</a>
-                        <a href="#">Dr. House</a>
-                         <a href="#">Queen Victoria</a>
-                        <a href="#">Dr. House</a>
-                    </div>
-                </div>
-        </aside>
-  {% endblock content%}
+    </aside>
+    
+
+    <style>
+        .signup__error {
+            color: red;
+            margin: 10px 0;
+            padding: 5px;
+        }
+        
+        .field-error {
+            color: red;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+    </style>
+{% endblock content %}

@@ -1,45 +1,156 @@
 {% extends 'base.html' %}
 {% load static %}
-        {%block content%}
-    <section class = "login">
-
-
-        <div class="logo">
-            <h2 class="logo__name">Log In</h2>
-        </div>
-        <div class = "logo__error">
-            <p>Sorry, wrong password!</p>
-        </div>
-        <div class = "login__auth">
-            <div class="login__login">
-                <span>Login</span>
-                <input type="text">
+{% block content %}
+    <section class="login">
+        <form action="" method='post'>
+            {% csrf_token %}  
+            
+            <div class="logo">
+                <h2 class="logo__name">Log In</h2>
             </div>
-            <div class="login__password">
-                <span>Password</span>
-                <input type="text">
-            </div>
-            <div class = "login__submit">
-                <button>Log In!</button>
-            </div>
-
-
-        </div>
-        <div class =  "lohin__registration">
-            <a href="#">create new account</a>
-        </div>
-    </section>
-        <aside class="aside">
-                {%include 'popular_tags.html'%}
-                <div class="aside__members">
-                    <span class = "aside__members__subtitle">Best Members</span>
-                    <div class = "aside__members__list">
-                        <a href="#">Mr Freeman</a>
-                        <a href="#">Dr. House</a>
-                         <a href="#">Queen Victoria</a>
-                        <a href="#">Dr. House</a>
-                    </div>
+            
+           
+            {% if form.non_field_errors %}
+                <div class="logo__error">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
                 </div>
-        </aside>
-
-        {% endblock content%}
+            {% endif %}
+            
+          
+            {% if wrong_password_or_login %}
+                <div class="logo__error">
+                    <p>Sorry, wrong password or login!</p>
+                </div>
+            {% endif %}
+            
+            <div class="login__auth">
+                <div class="login__login">
+                    <span>Login</span>
+                    <input type="text" class="form-control" id="username" name="username" 
+                           value="{{ form.username.value|default_if_none:'' }}">
+                    
+                  
+                    {% if form.username.errors %}
+                        <div class="field-errors">
+                            {% for error in form.username.errors %}
+                                <p class="error-text">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="login__password">
+                    <span>Password</span>
+                    <!-- Измените type с "text" на "password" для безопасности -->
+                    <input type="password" class="form-control" id="password" name="password">
+                    
+                    <!-- Ошибки для поля password -->
+                    {% if form.password.errors %}
+                        <div class="field-errors">
+                            {% for error in form.password.errors %}
+                                <p class="error-text">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="login__submit">
+                    <button type="submit">Log In!</button>
+                </div>
+            </div>
+            
+            <div class="login__registration">
+                <a href="{% url 'signup' %}">create new account</a>  <!-- Добавил ссылку на регистрацию -->
+            </div>
+        </form>
+    </section>
+    
+    <aside class="aside">
+        {% include 'popular_tags.html' %}
+        <div class="aside__members">
+            <span class="aside__members__subtitle">Best Members</span>
+            <div class="aside__members__list">
+                <a href="#">Mr Freeman</a>
+                <a href="#">Dr. House</a>
+                <a href="#">Queen Victoria</a>
+                <a href="#">Dr. House</a>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- Добавляем стили для отображения ошибок -->
+    <style>
+        /* Стили для ошибок */
+        .logo__error {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-left: 4px solid #c62828;
+        }
+        
+        .logo__error p {
+            margin: 0;
+            font-size: 14px;
+        }
+        
+        .field-errors {
+            margin-top: 5px;
+        }
+        
+        .error-text {
+            color: #c62828;
+            font-size: 12px;
+            margin: 3px 0 0 0;
+            padding-left: 5px;
+        }
+        
+        /* Подсветка полей с ошибками */
+        .form-control.error {
+            border-color: #c62828;
+            box-shadow: 0 0 0 1px rgba(198, 40, 40, 0.2);
+        }
+        
+        /* Стиль для ссылки регистрации */
+        .login__registration a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .login__registration a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    
+    <!-- JavaScript для динамической подсветки полей с ошибками -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Добавляем класс error к полям с ошибками
+            const errorElements = document.querySelectorAll('.field-errors');
+            errorElements.forEach(function(errorElement) {
+                const inputElement = errorElement.previousElementSibling;
+                if (inputElement && inputElement.classList.contains('form-control')) {
+                    inputElement.classList.add('error');
+                }
+            });
+            
+            // Убираем класс error при фокусе на поле
+            const formControls = document.querySelectorAll('.form-control');
+            formControls.forEach(function(control) {
+                control.addEventListener('focus', function() {
+                    this.classList.remove('error');
+                    
+                    // Скрываем ошибки этого поля при фокусе
+                    const errorDiv = this.parentElement.querySelector('.field-errors');
+                    if (errorDiv) {
+                        errorDiv.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock content %}

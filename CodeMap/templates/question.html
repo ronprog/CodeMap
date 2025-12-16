@@ -2,9 +2,17 @@
 {% load static %}
 {% block content %}
 <section class="content">
+    <!-- Блок вопроса -->
     <section class="question">
         <div class="question__logo">
-            <img class="question__avatar" src="{% static 'CodeMap/img/profile.png' %}" alt="pic">
+            {% with author_profile=question.author.profile %}
+                {% if author_profile.avatar %}
+                    <img class="question__avatar" src="{{ author_profile.avatar.url }}" alt="{{ question.author.username }}">
+                {% else %}
+                    <img class="question__avatar" src="{% static 'CodeMap/img/profile.png' %}" alt="{{ question.author.username }}">
+                {% endif %}
+            {% endwith %}
+            
             <div class="question__likes">
                 <form method="POST" action="{% url 'like_question' question.id %}" class="like-form">
                     {% csrf_token %}
@@ -25,14 +33,25 @@
                 <a href="{% url 'tag' tag.name %}">{{ tag.name }}</a>
                 {% endfor %}
             </div>
+            <div class="question__author">
+                <small>Asked by: {{ question.author.username }}</small>
+            </div>
         </div>
     </section>
     
+    <!-- Блок ответов -->
     <section class="answers">
         {% for answer_data in answers %}
-        <div class="answer">
+        <div class="answer {% if answer_data.obj.is_correct %}correct-answer{% endif %}">
             <div class="answer__logo">
-                <img class="answer__avatar" src="{% static 'CodeMap/img/profile.png' %}" alt="pic">
+                {% with answer_author_profile=answer_data.obj.author.profile %}
+                    {% if answer_author_profile.avatar %}
+                        <img class="answer__avatar" src="{{ answer_author_profile.avatar.url }}" alt="{{ answer_data.obj.author.username }}">
+                    {% else %}
+                        <img class="answer__avatar" src="{% static 'CodeMap/img/profile.png' %}" alt="{{ answer_data.obj.author.username }}">
+                    {% endif %}
+                {% endwith %}
+                
                 <div class="answer__likes">
                     <form method="POST" action="{% url 'like_answer' answer_data.obj.id %}" class="like-form">
                         {% csrf_token %}
@@ -46,14 +65,19 @@
             </div>
             <div class="answer__description">
                 <p>{{ answer_data.obj.content }}</p>
+                <div class="answer__author">
+                    <small>Answered by: {{ answer_data.obj.author.username }}</small>
+                </div>
                 <div class="answer__checker">
                     <form method="POST" action="{% url 'question' question.id %}">
                         {% csrf_token %}
                         <input type="hidden" name="answer_id" value="{{ answer_data.obj.id }}">
                         <input class="answer__checker__checkbox" type="checkbox" name="mark_correct" 
-                               {% if answer_data.obj.is_correct %}checked{% endif %} 
-                               onchange="this.form.submit()">
-                        <h3>Correct!</h3>
+                            {% if answer_data.obj.is_correct %}checked{% endif %} 
+                            onchange="this.form.submit()">
+                        {% if answer_data.obj.is_correct %}
+                            <h3>Correct!</h3>
+                        {% endif %}
                     </form>
                 </div>
             </div>
@@ -61,13 +85,58 @@
         {% endfor %}
     </section>
     
+    <!-- Блок формы для ответа -->
     <section class="my__answer">
-        <form method="POST" action="{% url 'question' question.id %}">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="add_answer">
-            <textarea class="my__answer__pole" name="content" placeholder="Enter your answer..." required></textarea>
-            <button type="submit" class="my__answer__submit">Answer</button>
-        </form>
+        {% if request.user.is_authenticated %}
+            <!-- Отображение только ошибок валидации -->
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <div class="alert alert-error" style="margin-bottom: 15px; padding: 10px; border-radius: 4px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;">
+                            {{ message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            
+            <form method="POST" action="{% url 'question' question.id %}" id="answerForm">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_answer">
+                
+                <!-- Поле для ответа -->
+                <textarea 
+                    class="my__answer__pole" 
+                    name="content" 
+                    id="answerContent"
+                    placeholder="Enter your answer..." 
+                    required
+                >{% if answer_form.content.value %}{{ answer_form.content.value }}{% endif %}</textarea>
+                
+                <!-- Отображение ошибок валидации из формы -->
+                {% if answer_form.content.errors %}
+                    <div class="error-messages" style="color: #dc3545; font-size: 14px; margin-top: 5px;">
+                        {% for error in answer_form.content.errors %}
+                            <div class="error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <!-- Счетчик символов -->
+                <div class="char-counter" style="margin-top: 10px; font-size: 12px; color: #666;">
+                    <span id="charCount">0</span>/5000 символов
+                </div>
+                
+                <div style="margin-top: 5px; font-size: 12px; color: #666;">
+                    Минимум 10 символов
+                </div>
+                
+                <button type="submit" class="my__answer__submit" id="submitBtn">Answer</button>
+            </form>
+        {% else %}
+            <div class="login-required" style="text-align: center; padding: 20px; background-color: #f8f9fa; border-radius: 4px;">
+                <p>Чтобы оставить ответ, пожалуйста <a href="{% url 'login' %}">войдите</a> или <a href="{% url 'signup' %}">зарегистрируйтесь</a>.</p>
+            </div>
+        {% endif %}
     </section>
 </section>
 
@@ -83,4 +152,210 @@
         </div>
     </div>
 </aside>
+
+<!-- JavaScript для валидации и сохранения текста -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const answerForm = document.getElementById('answerForm');
+    const textarea = document.getElementById('answerContent');
+    const submitBtn = document.getElementById('submitBtn');
+    const charCountSpan = document.getElementById('charCount');
+    
+    if (textarea) {
+        // Функция для обновления счетчика
+        function updateCharCount() {
+            const count = textarea.value.length;
+            charCountSpan.textContent = count;
+            
+            // Изменяем цвет счетчика
+            if (count > 5000) {
+                charCountSpan.style.color = '#dc3545';
+                submitBtn.disabled = true;
+            } else if (count > 4000) {
+                charCountSpan.style.color = '#ffc107';
+                submitBtn.disabled = false;
+            } else if (count >= 10) {
+                charCountSpan.style.color = '#28a745';
+                submitBtn.disabled = false;
+            } else {
+                charCountSpan.style.color = '#666';
+                submitBtn.disabled = false;
+            }
+            
+            // Отключаем кнопку если меньше 10 символов
+            if (count > 0 && count < 10) {
+                submitBtn.disabled = true;
+            }
+        }
+        
+        // Функция валидации формы
+        function validateForm() {
+            const content = textarea.value.trim();
+            
+            if (content.length === 0) {
+                return {isValid: false, message: "Ответ не может быть пустым"};
+            }
+            
+            if (content.length < 10) {
+                return {isValid: false, message: "Ответ должен содержать минимум 10 символов"};
+            }
+            
+            if (content.length > 5000) {
+                return {isValid: false, message: "Ответ не должен превышать 5000 символов"};
+            }
+            
+            return {isValid: true, message: ""};
+        }
+        
+        // Слушатель события input
+        textarea.addEventListener('input', updateCharCount);
+        
+        // Слушатель события submit
+        answerForm.addEventListener('submit', function(e) {
+            const validation = validateForm();
+            
+            if (!validation.isValid) {
+                e.preventDefault();
+                
+                // Показываем сообщение об ошибке
+                let errorDiv = document.querySelector('.error-messages');
+                if (!errorDiv) {
+                    errorDiv = document.createElement('div');
+                    errorDiv.className = 'error-messages';
+                    errorDiv.style.cssText = 'color: #dc3545; font-size: 14px; margin-top: 5px; padding: 10px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; margin: 10px 0;';
+                    textarea.parentNode.insertBefore(errorDiv, textarea.nextSibling);
+                }
+                
+                errorDiv.innerHTML = `<div class="error">${validation.message}</div>`;
+                
+                return false;
+            }
+            
+            // Блокируем кнопку отправки
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Отправка...';
+            submitBtn.style.opacity = '0.7';
+            
+            return true;
+        });
+        
+        // Скрываем сообщения об ошибках при начале ввода
+        textarea.addEventListener('input', function() {
+            const errorDiv = document.querySelector('.error-messages');
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+            }
+            
+            const alertDiv = document.querySelector('.alert-error');
+            if (alertDiv) {
+                alertDiv.style.display = 'none';
+            }
+        });
+        
+        // Инициализация счетчика при загрузке
+        updateCharCount();
+        
+        // Автоматическое скрытие сообщений об ошибках через 5 секунд
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert-error, .error-messages');
+            alerts.forEach(function(alert) {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    alert.style.display = 'none';
+                }, 500);
+            });
+        }, 5000);
+    }
+});
+</script>
+
+<style>
+    .question__avatar, .answer__avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #ddd;
+    }
+    
+    .question__author, .answer__author {
+        margin-top: 5px;
+        font-size: 12px;
+        color: #666;
+        font-style: italic;
+    }
+    
+    .my__answer__pole {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-family: inherit;
+        font-size: 14px;
+        resize: vertical;
+        min-height: 120px;
+        transition: border-color 0.3s;
+    }
+    
+    .my__answer__pole:focus {
+        outline: none;
+        border-color: #28a745;
+        box-shadow: 0 0 0 2px rgba(40,167,69,0.25);
+    }
+    
+    .my__answer__submit {
+        margin-top: 15px;
+        padding: 10px 25px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+    
+    .my__answer__submit:hover:not(:disabled) {
+        background-color: #218838;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    .my__answer__submit:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    
+    .error-messages {
+        padding: 10px;
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 4px;
+        margin: 10px 0;
+    }
+    
+    .correct-answer {
+        border-left: 4px solid #28a745;
+        padding-left: 10px;
+        background-color: #f8fff8;
+    }
+    
+    .alert-error {
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            transform: translateY(-10px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+</style>
 {% endblock %}

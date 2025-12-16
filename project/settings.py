@@ -44,7 +44,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+   'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -118,12 +118,12 @@ import os
 STATIC_URL = '/static/'
 STATIC_ROOT = "./staticfiles"
 
-if DEBUG:
-    STATICFILES_DIRS = [
-        BASE_DIR / "CodeMap" / "static",  
-    ]
-else:
-    STATIC_ROOT = BASE_DIR / "staticfiles"  
+MEDIA_URL = '/media/'
+MEDIA_ROOT = "./mediafiles"
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # если папка static в корне проекта
+]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
